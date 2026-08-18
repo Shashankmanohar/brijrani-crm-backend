@@ -23,8 +23,23 @@ const app = express();
 
 // 1. Security & Parsers (Section 58)
 app.use(helmet());
+
+const allowedOrigins = [
+  'http://localhost:3000',
+  'https://brijrani-crm-frontend.vercel.app'
+];
+if (process.env.FRONTEND_URL) {
+  allowedOrigins.push(process.env.FRONTEND_URL);
+}
+
 app.use(cors({
-  origin: process.env.FRONTEND_URL || 'http://localhost:3000',
+  origin: (origin, callback) => {
+    if (!origin) return callback(null, true);
+    if (allowedOrigins.indexOf(origin) !== -1 || allowedOrigins.some(o => origin.startsWith(o))) {
+      return callback(null, true);
+    }
+    return callback(new Error('Not allowed by CORS'), false);
+  },
   credentials: true
 }));
 app.use(express.json());
