@@ -55,6 +55,11 @@ app.use('/api/v1/crm', crmRoutes);
 app.use('/api/v1/finance', financeRoutes);
 app.use('/api/v1/reports', reportRoutes);
 
+// Root endpoint
+app.get('/', (req, res) => {
+  res.send('hello from backend');
+});
+
 // Health check endpoint
 app.get('/api/health', (req, res) => {
   res.json({ success: true, message: 'ERP API Server Healthy', timestamp: new Date() });
