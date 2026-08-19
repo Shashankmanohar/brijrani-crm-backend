@@ -4,6 +4,14 @@ import cors from 'cors';
 import morgan from 'morgan';
 import rateLimit from 'express-rate-limit';
 import path from 'path';
+import dotenv from 'dotenv';
+import { connectDB } from './config/db';
+
+// Load Env variables
+dotenv.config();
+
+// Initialize Database Connection
+connectDB();
 
 // Middlewares
 import { errorHandler } from './middlewares/errorHandler';
