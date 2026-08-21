@@ -4,6 +4,9 @@ import { authenticate } from '../../middlewares/auth';
 
 const router = Router();
 
+// Public endpoint — no auth needed, used by all browsers to check if DB was cleared
+router.get('/db-status', mastersController.getDbStatus);
+
 // Apply authentication middleware to all master data endpoints
 router.use(authenticate as any);
 
@@ -49,5 +52,8 @@ router.delete('/vehicles/:id', mastersController.deleteVehicle);
 router.post('/drivers', mastersController.createDriver);
 router.get('/drivers', mastersController.listDrivers);
 router.delete('/drivers/:id', mastersController.deleteDriver);
+
+// System Reset
+router.post('/clear-database', mastersController.clearDatabase);
 
 export default router;

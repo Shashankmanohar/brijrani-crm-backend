@@ -6,7 +6,7 @@ export const connectDB = async (): Promise<void> => {
     return;
   }
   try {
-    const connUri = process.env.MONGODB_URI || 'mongodb://localhost:27017/brijrani_erp';
+    const connUri = process.env.MONGODB_URI || 'mongodb+srv://shashankmanohar1734_db_user:hpIe3ev8T1QsKZMM@cluster0.ws2kdbz.mongodb.net/brijrani_erp?retryWrites=true&w=majority';
     mongoose.set('strictQuery', true);
     
     await mongoose.connect(connUri);

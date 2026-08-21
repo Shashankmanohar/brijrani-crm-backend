@@ -8,7 +8,7 @@ import { User } from '../src/modules/users/model';
 import { SalesOrder, PickingTask } from '../src/modules/sales/model';
 import { StockReservation, StockLedgerEntry } from '../src/modules/inventory/model';
 
-const TEST_MONGO_URI = 'mongodb://localhost:27017/brijrani_erp_test';
+const TEST_MONGO_URI = process.env.MONGODB_URI_TEST || 'mongodb+srv://shashankmanohar1734_db_user:hpIe3ev8T1QsKZMM@cluster0.ws2kdbz.mongodb.net/brijrani_erp_test?retryWrites=true&w=majority';
 
 describe('Sales Workflow & Inventory Reservation Tests', () => {
   let commodityId: string;

@@ -148,7 +148,7 @@ export const authController = {
       await acctRole.save();
 
       // Seed Admin User
-      const passwordHash = await bcrypt.hash('admin123', 10);
+      const passwordHash = await bcrypt.hash('password123', 10);
       const adminUser = new User({
         name: 'Admin User',
         email: 'admin@brijrani.com',
@@ -160,6 +160,42 @@ export const authController = {
         isVerified: true
       });
       await adminUser.save();
+
+      const pmUser = new User({
+        name: 'Purchase Manager User',
+        email: 'pm@brijrani.com',
+        passwordHash,
+        role: 'Purchase Manager',
+        status: 'Active',
+        companyId: 'company-001',
+        branchId: 'branch-001',
+        isVerified: true
+      });
+      await pmUser.save();
+
+      const whUser = new User({
+        name: 'Warehouse Manager User',
+        email: 'wh@brijrani.com',
+        passwordHash,
+        role: 'Warehouse Manager',
+        status: 'Active',
+        companyId: 'company-001',
+        branchId: 'branch-001',
+        isVerified: true
+      });
+      await whUser.save();
+
+      const acctUser = new User({
+        name: 'Accountant User',
+        email: 'acct@brijrani.com',
+        passwordHash,
+        role: 'Accountant',
+        status: 'Active',
+        companyId: 'company-001',
+        branchId: 'branch-001',
+        isVerified: true
+      });
+      await acctUser.save();
 
       // Seed Commodities
       const wheat = new Commodity({
@@ -352,17 +388,30 @@ export const authController = {
         date: new Date('2026-08-02'),
         partyType: 'supplier',
         partyId: sup1._id,
-        commodityId: wheat._id,
-        quantity: 100,
-        rate: 22000,
-        transportCost: 15000,
-        otherCharges: 5000,
-        gstPercent: 5,
-        total: 2315000,
-        warehouseId: whPatna._id,
+        buyer: 'Admin User',
+        department: 'Purchase',
         expectedDelivery: new Date('2026-08-15'),
+        freight: 15000,
+        otherCharges: 5000,
+        discount: 0,
+        tax: 110000,
+        total: 2330000, // (100 * 22000) + 15000 + 5000 + 110000 = 2330000
+        warehouseId: whPatna._id,
         status: 'Approved',
-        createdBy: 'admin@brijrani.com'
+        createdBy: 'admin@brijrani.com',
+        items: [{
+          item: wheat._id,
+          description: 'Sonalika Wheat Seeds',
+          sku: 'CMD-001',
+          quantity: 100,
+          unit: 'MT',
+          rate: 22000,
+          discount: 0,
+          taxPercent: 5,
+          taxAmount: 110000,
+          amount: 2200000,
+          expectedDelivery: new Date('2026-08-15')
+        }]
       });
       await po1.save();
 

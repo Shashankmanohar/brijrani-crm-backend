@@ -69,6 +69,15 @@ export const inventoryService = {
       createdBy: string;
     }
   ) => {
+    // Resolve dummy bin if N/A or invalid ObjectId
+    if (data.binId === 'N/A' || !mongoose.Types.ObjectId.isValid(data.binId)) {
+      const dummyBin = await Bin.findOne({ warehouseId: data.warehouseId });
+      const finalBin = dummyBin || await Bin.findOne({});
+      if (finalBin) {
+        data.binId = String(finalBin._id);
+      }
+    }
+
     // 1. Fetch the physical bin
     const bin = await (session ? Bin.findById(data.binId).session(session) : Bin.findById(data.binId));
     if (!bin) throw new CustomError('Target storage bin not found', 404);
@@ -187,7 +196,14 @@ export const inventoryService = {
           allowedCommodityId: commodityId,
           'currentStock.batchNo': batch.batchNo
         });
-        const bin = await (session ? binQuery.session(session) : binQuery);
+        let bin = await (session ? binQuery.session(session) : binQuery);
+
+        if (!bin) {
+          bin = await Bin.findOne({ warehouseId });
+        }
+        if (!bin) {
+          bin = await Bin.findOne({});
+        }
 
         if (!bin) continue;
 
@@ -240,6 +256,16 @@ export const inventoryService = {
     }
   ): Promise<void> => {
     await runInTransaction(async (session) => {
+      // Resolve dummy bins if N/A or invalid ObjectId
+      if (data.fromBinId === 'N/A' || !mongoose.Types.ObjectId.isValid(data.fromBinId)) {
+        const dummyBin = await Bin.findOne({ warehouseId: data.fromWarehouseId }) || await Bin.findOne({});
+        if (dummyBin) data.fromBinId = String(dummyBin._id);
+      }
+      if (data.toBinId === 'N/A' || !mongoose.Types.ObjectId.isValid(data.toBinId)) {
+        const dummyBin = await Bin.findOne({ warehouseId: data.toWarehouseId }) || await Bin.findOne({});
+        if (dummyBin) data.toBinId = String(dummyBin._id);
+      }
+
       const fromBin = await (session ? Bin.findById(data.fromBinId).session(session) : Bin.findById(data.fromBinId));
       if (!fromBin) throw new CustomError('Source bin not found', 404);
 

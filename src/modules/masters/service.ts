@@ -3,8 +3,16 @@ import { Supplier, ISupplier } from '../suppliers/model';
 import { Farmer, IFarmer } from '../farmers/model';
 import { Commodity, ICommodity } from '../commodities/model';
 import { Warehouse, Bin, IWarehouse, IBin } from '../warehouse/model';
-import { Vehicle, Driver, IVehicle, IDriver } from '../logistics/model';
+import { Vehicle, Driver, DeliveryChallan, EWayBill, ProofOfDelivery, IVehicle, IDriver } from '../logistics/model';
 import { Role, IRole } from '../roles/model';
+import { PurchaseEnquiry, PurchaseQuotation, PurchaseOrder, GRN, QualityInspection, PurchaseInvoice } from '../procurement/model';
+import { SalesEnquiry, SalesQuotation, SalesOrder, PickingTask, PackingSlip, SalesInvoice } from '../sales/model';
+import { StockLedgerEntry, StockReservation } from '../inventory/model';
+import { Voucher, LedgerEntry } from '../finance/model';
+import { Lead, Opportunity, Activity, FollowUp, CrmAutomationRule } from '../crm/model';
+import { AuditLog } from '../audit/model';
+import { MarketPrice, PriceAlert } from '../marketPrices/model';
+import { Settings } from '../settings/model';
 import { CustomError } from '../../middlewares/errorHandler';
 import mongoose from 'mongoose';
 
@@ -232,5 +240,47 @@ export const mastersService = {
   },
   deleteDriver: async (id: string): Promise<void> => {
     await Driver.findByIdAndDelete(id);
+  },
+
+  clearDatabase: async (): Promise<void> => {
+    await Promise.all([
+      Customer.deleteMany({}),
+      Supplier.deleteMany({}),
+      Farmer.deleteMany({}),
+      Commodity.deleteMany({}),
+      Warehouse.deleteMany({}),
+      Bin.deleteMany({}),
+      Vehicle.deleteMany({}),
+      Driver.deleteMany({}),
+      PurchaseEnquiry.deleteMany({}),
+      PurchaseQuotation.deleteMany({}),
+      PurchaseOrder.deleteMany({}),
+      GRN.deleteMany({}),
+      QualityInspection.deleteMany({}),
+      PurchaseInvoice.deleteMany({}),
+      SalesEnquiry.deleteMany({}),
+      SalesQuotation.deleteMany({}),
+      SalesOrder.deleteMany({}),
+      PickingTask.deleteMany({}),
+      PackingSlip.deleteMany({}),
+      SalesInvoice.deleteMany({}),
+      DeliveryChallan.deleteMany({}),
+      EWayBill.deleteMany({}),
+      ProofOfDelivery.deleteMany({}),
+      StockLedgerEntry.deleteMany({}),
+      StockReservation.deleteMany({}),
+      Voucher.deleteMany({}),
+      LedgerEntry.deleteMany({}),
+      Lead.deleteMany({}),
+      Opportunity.deleteMany({}),
+      Activity.deleteMany({}),
+      FollowUp.deleteMany({}),
+      CrmAutomationRule.deleteMany({}),
+      AuditLog.deleteMany({}),
+      MarketPrice.deleteMany({}),
+      PriceAlert.deleteMany({})
+    ]);
+    // Stamp the cleared time so all browsers can detect the wipe on next load
+    await Settings.updateOne({}, { $set: { clearedAt: new Date() } }, { upsert: true });
   }
 };

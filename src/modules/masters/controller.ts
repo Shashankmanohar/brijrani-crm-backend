@@ -1,4 +1,6 @@
 import { Request, Response, NextFunction } from 'express';
+import { AuthenticatedRequest } from '../../middlewares/auth';
+import { CustomError } from '../../middlewares/errorHandler';
 import { mastersService } from './service';
 import { sendSuccess } from '../../utils/response';
 
@@ -227,6 +229,28 @@ export const mastersController = {
     try {
       await mastersService.deleteDriver(req.params.id as string);
       sendSuccess(res, 'Driver deleted successfully');
+    } catch (err) {
+      next(err);
+    }
+  },
+
+  clearDatabase: async (req: AuthenticatedRequest, res: Response, next: NextFunction): Promise<void> => {
+    try {
+      if (req.user?.role !== 'Super Admin') {
+        throw new CustomError('Unauthorized: Only Super Admin can clear the database', 403);
+      }
+      await mastersService.clearDatabase();
+      sendSuccess(res, 'All database collections cleared successfully');
+    } catch (err) {
+      next(err);
+    }
+  },
+
+  getDbStatus: async (req: Request, res: Response, next: NextFunction): Promise<void> => {
+    try {
+      const { Settings } = await import('../settings/model');
+      const settings = await Settings.findOne({});
+      res.json({ clearedAt: settings?.clearedAt ?? null });
     } catch (err) {
       next(err);
     }

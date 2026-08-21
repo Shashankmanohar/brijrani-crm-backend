@@ -10,6 +10,7 @@ export interface ISettings extends Document {
   grnPrefix: string;
   invPrefix: string;
   vchPrefix: string;
+  clearedAt?: Date;
 }
 
 const settingsSchema = new Schema<ISettings>({
@@ -21,7 +22,8 @@ const settingsSchema = new Schema<ISettings>({
   poPrefix: { type: String, required: true, default: 'PO/BR/2026-27/' },
   grnPrefix: { type: String, required: true, default: 'GRN/BR/2026-27/' },
   invPrefix: { type: String, required: true, default: 'INV/BR/2026-27/' },
-  vchPrefix: { type: String, required: true, default: 'VCH/BR/2026-27/' }
+  vchPrefix: { type: String, required: true, default: 'VCH/BR/2026-27/' },
+  clearedAt: { type: Date }
 }, {
   timestamps: true
 });

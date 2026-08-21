@@ -25,6 +25,8 @@ export interface IFarmer extends Document {
   balance: number; // Current payable / advance
   qualityHistory: IFarmerQualityLog[];
   status: 'Active' | 'Inactive';
+  pan?: string;
+  aadhar?: string;
 }
 
 const farmerSchema = new Schema<IFarmer>({
@@ -40,6 +42,8 @@ const farmerSchema = new Schema<IFarmer>({
   bankName: { type: String },
   bankAccountNo: { type: String },
   bankIfsc: { type: String },
+  pan: { type: String },
+  aadhar: { type: String },
   openingBalance: { type: Number, default: 0 },
   balance: { type: Number, default: 0 },
   qualityHistory: {

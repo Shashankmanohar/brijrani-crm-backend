@@ -15,6 +15,9 @@ export interface ISupplier extends Document {
   openingBalance: number;
   balance: number; // Current outstanding payable
   status: 'Active' | 'Inactive';
+  bankName?: string;
+  accountNumber?: string;
+  ifscCode?: string;
 }
 
 const supplierSchema = new Schema<ISupplier>({
@@ -31,7 +34,10 @@ const supplierSchema = new Schema<ISupplier>({
   paymentTerms: { type: String, default: 'Net 30' },
   openingBalance: { type: Number, default: 0 },
   balance: { type: Number, default: 0 },
-  status: { type: String, enum: ['Active', 'Inactive'], default: 'Active', index: true }
+  status: { type: String, enum: ['Active', 'Inactive'], default: 'Active', index: true },
+  bankName: { type: String },
+  accountNumber: { type: String },
+  ifscCode: { type: String }
 }, {
   timestamps: true
 });

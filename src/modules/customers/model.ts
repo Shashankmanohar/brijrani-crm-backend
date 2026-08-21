@@ -16,6 +16,9 @@ export interface ICustomer extends Document {
   openingBalance: number;
   balance: number; 
   status: 'Active' | 'Inactive';
+  bankName?: string;
+  accountNumber?: string;
+  ifscCode?: string;
 }
 
 const customerSchema = new Schema<ICustomer>({
@@ -33,7 +36,10 @@ const customerSchema = new Schema<ICustomer>({
   paymentTerms: { type: String, default: 'Net 30' },
   openingBalance: { type: Number, default: 0 },
   balance: { type: Number, default: 0 },
-  status: { type: String, enum: ['Active', 'Inactive'], default: 'Active', index: true }
+  status: { type: String, enum: ['Active', 'Inactive'], default: 'Active', index: true },
+  bankName: { type: String },
+  accountNumber: { type: String },
+  ifscCode: { type: String }
 }, {
   timestamps: true
 });

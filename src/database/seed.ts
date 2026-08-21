@@ -14,11 +14,11 @@ import { Supplier } from '../modules/suppliers/model';
 import { Farmer } from '../modules/farmers/model';
 import { Vehicle, Driver } from '../modules/logistics/model';
 import { CrmAutomationRule } from '../modules/crm/model';
-import { PurchaseOrder } from '../modules/procurement/model';
-import { SalesInvoice } from '../modules/sales/model';
+import { PurchaseOrder, PurchaseEnquiry, PurchaseQuotation } from '../modules/procurement/model';
+import { SalesInvoice, SalesOrder } from '../modules/sales/model';
 import { Voucher } from '../modules/finance/model';
 
-const MONGODB_URI = process.env.MONGODB_URI || 'mongodb://localhost:27017/brijrani_erp';
+const MONGODB_URI = process.env.MONGODB_URI || 'mongodb+srv://shashankmanohar1734_db_user:hpIe3ev8T1QsKZMM@cluster0.ws2kdbz.mongodb.net/brijrani_erp?retryWrites=true&w=majority';
 
 const seedDatabase = async () => {
   try {
@@ -38,7 +38,10 @@ const seedDatabase = async () => {
     await Vehicle.deleteMany({});
     await Driver.deleteMany({});
     await CrmAutomationRule.deleteMany({});
+    await PurchaseEnquiry.deleteMany({});
+    await PurchaseQuotation.deleteMany({});
     await PurchaseOrder.deleteMany({});
+    await SalesOrder.deleteMany({});
     await SalesInvoice.deleteMany({});
     await Voucher.deleteMany({});
 
@@ -82,8 +85,9 @@ const seedDatabase = async () => {
     });
     await acctRole.save();
 
-    console.log('[SEED] Seeding Admin User...');
-    const passwordHash = await bcrypt.hash('admin123', 10);
+    console.log('[SEED] Seeding User Accounts...');
+    const passwordHash = await bcrypt.hash('password123', 10);
+    
     const adminUser = new User({
       name: 'Admin User',
       email: 'admin@brijrani.com',
@@ -95,6 +99,42 @@ const seedDatabase = async () => {
       isVerified: true
     });
     await adminUser.save();
+
+    const pmUser = new User({
+      name: 'Deepak Kumar',
+      email: 'deepak@brijrani.com',
+      passwordHash,
+      role: 'Purchase Manager',
+      status: 'Active',
+      companyId: 'company-001',
+      branchId: 'branch-001',
+      isVerified: true
+    });
+    await pmUser.save();
+
+    const whUser = new User({
+      name: 'Raman Singh',
+      email: 'raman@brijrani.com',
+      passwordHash,
+      role: 'Warehouse Staff',
+      status: 'Active',
+      companyId: 'company-001',
+      branchId: 'branch-001',
+      isVerified: true
+    });
+    await whUser.save();
+
+    const acctUser = new User({
+      name: 'Sanjay Verma',
+      email: 'sanjay@brijrani.com',
+      passwordHash,
+      role: 'Accountant',
+      status: 'Active',
+      companyId: 'company-001',
+      branchId: 'branch-001',
+      isVerified: true
+    });
+    await acctUser.save();
 
     console.log('[SEED] Seeding Commodities (Wheat, Paddy, Mustard)...');
     const wheat = new Commodity({
@@ -290,30 +330,150 @@ const seedDatabase = async () => {
     await rule2.save();
 
     console.log('[SEED] Seeding Transactional Data (Purchase Orders, Sales Invoices, Vouchers)...');
-    
+
+    // Seed a Purchase Enquiry
+    const pe1 = new PurchaseEnquiry({
+      enquiryNo: 'PE-2026-0001',
+      date: new Date('2026-08-01'),
+      requiredByDate: new Date('2026-08-10'),
+      department: 'Production',
+      requestedBy: 'Rahul (Production Head)',
+      priority: 'Medium',
+      warehouseId: whPatna._id,
+      purpose: 'Bulk sourcing test',
+      status: 'RFQ Created',
+      createdBy: 'admin@brijrani.com',
+      items: [{
+        item: wheat._id,
+        description: 'Sonalika Wheat Seeds',
+        sku: 'CMD-001',
+        quantity: 100,
+        unit: 'MT',
+        estimatedRate: 22000,
+        estimatedAmount: 2200000,
+        requiredDate: new Date('2026-08-15'),
+        remarks: 'Direct sourcing requirement'
+      }]
+    });
+    await pe1.save();
+
+    // Seed a Purchase Quotation Under Negotiation
+    const pq1 = new PurchaseQuotation({
+      quotationNo: 'PQ/BR/2026-27/001',
+      enquiryNo: 'PE-2026-0001',
+      date: new Date('2026-08-01'),
+      partyType: 'supplier',
+      partyId: sup1._id,
+      validUntil: new Date('2026-08-28'),
+      paymentTerms: '30 Day',
+      deliveryDays: 5,
+      freight: 0,
+      discount: 0,
+      tax: 0,
+      grandTotal: 0,
+      status: 'Under Negotiation',
+      createdBy: 'admin@brijrani.com',
+      items: [{
+        item: wheat._id,
+        description: 'Sonalika Wheat Seeds',
+        sku: 'CMD-001',
+        quantity: 100,
+        unit: 'MT',
+        rate: 23000,
+        discount: 0,
+        taxPercent: 5,
+        taxAmount: 115000,
+        lineTotal: 2415000,
+        deliveryDate: new Date('2026-08-15')
+      }]
+    });
+    await pq1.save();
+
+    // Seed a Purchase Quotation Converted
+    const pq2 = new PurchaseQuotation({
+      quotationNo: 'PQ/BR/2026-27/002',
+      enquiryNo: 'PE-2026-0001',
+      date: new Date('2026-08-01'),
+      partyType: 'supplier',
+      partyId: sup1._id,
+      validUntil: new Date('2026-08-30'),
+      paymentTerms: 'Standard Net 30',
+      deliveryDays: 5,
+      freight: 15000,
+      discount: 0,
+      tax: 110000,
+      grandTotal: 2330000,
+      status: 'Converted',
+      createdBy: 'admin@brijrani.com',
+      items: [{
+        item: wheat._id,
+        description: 'Sonalika Wheat Seeds',
+        sku: 'CMD-001',
+        quantity: 100,
+        unit: 'MT',
+        rate: 22000,
+        discount: 0,
+        taxPercent: 5,
+        taxAmount: 110000,
+        lineTotal: 2310000,
+        deliveryDate: new Date('2026-08-15')
+      }]
+    });
+    await pq2.save();
+
     // Seed a Purchase Order
     const po1 = new PurchaseOrder({
       poNo: 'PO/BR/2026-27/001',
       date: new Date('2026-08-02'),
       partyType: 'supplier',
       partyId: sup1._id,
-      commodityId: wheat._id,
-      quantity: 100,
-      rate: 22000,
-      transportCost: 15000,
-      otherCharges: 5000,
-      gstPercent: 5,
-      total: 2315000, // (100 * 22000 + 15000 + 5000) * 1.05
-      warehouseId: whPatna._id,
+      buyer: 'Admin User',
+      department: 'Purchase',
       expectedDelivery: new Date('2026-08-15'),
+      freight: 15000,
+      otherCharges: 5000,
+      discount: 0,
+      tax: 110000,
+      total: 2330000, // (100 * 22000) + 15000 + 5000 + 110000 = 2330000
+      warehouseId: whPatna._id,
       status: 'Approved',
-      createdBy: 'admin@brijrani.com'
+      createdBy: 'admin@brijrani.com',
+      items: [{
+        item: wheat._id,
+        description: 'Sonalika Wheat Seeds',
+        sku: 'CMD-001',
+        quantity: 100,
+        unit: 'MT',
+        rate: 22000,
+        discount: 0,
+        taxPercent: 5,
+        taxAmount: 110000,
+        amount: 2200000,
+        expectedDelivery: new Date('2026-08-15')
+      }]
     });
     await po1.save();
+
+    // Seed a Sales Order first
+    const so1 = new SalesOrder({
+      soNo: 'SO/BR/2026-27/001',
+      date: new Date('2026-08-03'),
+      customerId: cust1._id,
+      commodityId: wheat._id,
+      quantity: 20,
+      rate: 27500,
+      total: 550000,
+      warehouseId: whPatna._id,
+      deliveryAddress: 'Fatuha Industrial Estate, Patna, Bihar, 803201',
+      status: 'Completed',
+      createdBy: 'admin@brijrani.com'
+    });
+    await so1.save();
 
     // Seed a Sales Invoice
     const inv1 = new SalesInvoice({
       invoiceNo: 'INV/BR/2026-27/001',
+      soId: so1._id,
       invoiceDate: new Date('2026-08-04'),
       customerId: cust1._id,
       gstin: '10AAACR0912K1Z8',
@@ -337,10 +497,13 @@ const seedDatabase = async () => {
       cgst: 13750,
       sgst: 13750,
       igst: 0,
-      freight: 0,
+      freightCost: 0,
+      otherCharges: 0,
       grandTotal: 577500,
       dueDate: new Date('2026-09-04'),
-      paymentStatus: 'Paid'
+      placeOfSupply: 'Bihar',
+      paymentStatus: 'Paid',
+      createdBy: 'admin@brijrani.com'
     });
     await inv1.save();
 
